@@ -1,0 +1,158 @@
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morphing Emotional Dark City Batman with Transparent Background</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    color: #0f0;
+    background-color: transparent;
+  }
+  #matrix-rain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+  #batman-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+  }
+  #batman-image {
+    width: 300px;
+    height: auto;
+    transition: all 0.5s ease;
+  }
+  .emotion-text {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    color: #0f0;
+    text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+  }
+</style>
+</head>
+<body>
+  <canvas id="matrix-rain"></canvas>
+  <div id="batman-container">
+    <img id="batman-image" src="new_batman_image.png" alt="Morphing Emotional Batman mask">
+  </div>
+  <div class="emotion-text" id="emotion-display"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+<script>
+  // Matrix rain effect
+  const canvas = document.getElementById('matrix-rain');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
+  const matrixChars = matrix.split('');
+
+  const fontSize = 10;
+  const columns = canvas.width / fontSize;
+
+  const drops = [];
+  for (let i = 0; i < columns; i++) {
+    drops[i] = 1;
+  }
+
+  function drawMatrixRain() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#0f0';
+    ctx.font = fontSize + 'px monospace';
+
+    for (let i = 0; i < drops.length; i++) {
+      const text = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+
+      drops[i]++;
+    }
+  }
+
+  setInterval(drawMatrixRain, 50);
+
+  // Morphing Emotional Batman effect
+  const batmanImage = document.getElementById('batman-image');
+  const emotionDisplay = document.getElementById('emotion-display');
+  
+  const emotions = [
+    { name: 'Angry', color: '#ff0000', transform: 'scale(1.1) rotate(-5deg)', filter: 'hue-rotate(0deg) brightness(1.2)' },
+    { name: 'Happy', color: '#ffff00', transform: 'scale(1.05) rotate(5deg)', filter: 'hue-rotate(60deg) brightness(1.5)' },
+    { name: 'Sad', color: '#0000ff', transform: 'scale(0.95) rotate(-3deg)', filter: 'hue-rotate(240deg) brightness(0.8)' },
+    { name: 'Excited', color: '#ff00ff', transform: 'scale(1.15) rotate(10deg)', filter: 'hue-rotate(300deg) brightness(1.7)' },
+    { name: 'Confused', color: '#00ffff', transform: 'scale(1) rotate(-10deg) skew(5deg)', filter: 'hue-rotate(180deg) brightness(1.1)' }
+  ];
+
+  let currentEmotionIndex = 0;
+
+  function morphEmotion() {
+    const prevEmotion = emotions[currentEmotionIndex];
+    currentEmotionIndex = (currentEmotionIndex + 1) % emotions.length;
+    const nextEmotion = emotions[currentEmotionIndex];
+    
+    gsap.to(batmanImage, {
+      duration: 2,
+      filter: `drop-shadow(0 0 10px ${nextEmotion.color}) ${nextEmotion.filter}`,
+      transform: nextEmotion.transform,
+      ease: 'power2.inOut'
+    });
+
+    gsap.to(emotionDisplay, {
+      duration: 1,
+      color: nextEmotion.color,
+      text: `Batman is morphing: ${prevEmotion.name} -> ${nextEmotion.name}`,
+      ease: 'power2.out'
+    });
+  }
+
+  // Morph emotion every 4 seconds
+  setInterval(morphEmotion, 4000);
+
+  // Interactive elements
+  document.addEventListener('mousemove', (e) => {
+    const xAxis = (window.innerWidth / 2 - e.pageX) / 20;
+    const yAxis = (window.innerHeight / 2 - e.pageY) / 20;
+    gsap.to('#batman-image', {
+      duration: 0.3,
+      rotationY: xAxis,
+      rotationX: yAxis,
+      ease: 'power2.out'
+    });
+  });
+
+  // Pulsating effect
+  gsap.to('#batman-image', {
+    duration: 1.5,
+    scale: 1.05,
+    repeat: -1,
+    yoyo: true,
+    ease: 'power1.inOut'
+  });
+
+  // Click to trigger instant emotion change
+  document.addEventListener('click', () => {
+    currentEmotionIndex = (currentEmotionIndex + 1) % emotions.length;
+    morphEmotion();
+  });
+</script>
+</body>
+</html>
